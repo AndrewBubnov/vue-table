@@ -8,4 +8,5 @@ export default interface Hero {
     birth_year: string;
     gender: string;
     id?: string;
+    edited?: boolean;
 }
