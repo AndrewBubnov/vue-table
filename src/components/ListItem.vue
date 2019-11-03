@@ -61,7 +61,8 @@ button{
 .button-container{
     display: flex;
     justify-content: space-between;
-    width: 100px;
+    width: 70px;
+    margin-left: 30px;
 }
 .record-input {
     height: 20px;

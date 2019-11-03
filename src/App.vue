@@ -130,7 +130,6 @@ export default {
     .record {
         width: 180px;
         text-align: center;
-        box-sizing: border-box;
     }
     .header {
         width: 1440px;
