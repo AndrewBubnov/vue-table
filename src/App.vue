@@ -15,7 +15,7 @@
                 <SearchInput
                         :key="field"
                         v-for="field in iteratedFields"
-                        :list="displayedList"
+                        :list="displayed"
                         :field="field"
                         @onSearch="onSearch"
                 />
@@ -28,10 +28,11 @@
                 ><i class="material-icons">sort</i>
                 </div>
             </div>
-            <ListItem v-for="hero of displayedList"
+            <ListItem v-for="hero in shown"
                       :hero="hero"
                       :key="hero.id"
-                      @onDelete="onDelete(hero.name)"
+                      :list="displayed"
+                      @onDelete="onDelete(hero.id)"
                       @onSave="onSave"
             />
             <Pagination
@@ -67,6 +68,7 @@ export default {
           this.list = list;
       }
     },
+
     computed: {
       iteratedFields() {
           return Object.keys(this.list[0]).filter(field => field !== 'id' && field !== 'edited');
@@ -76,7 +78,7 @@ export default {
           return this.searched.length > 0 ? this.searched : this.list;
       },
 
-      displayedList() {
+      displayed() {
           if (this.searched.length > 0) {
               return this.searchedList
           } else {
@@ -88,13 +90,34 @@ export default {
           }
       },
 
+      shown() {
+          if (this.sortedBy){
+              const key = this.sortedBy;
+              return this.displayed.slice().sort((a, b) => {
+                  let result = 0;
+                  if (!isNaN(parseFloat(a[key])) && !isNaN(parseFloat(a[key])) &&
+                      typeof parseFloat(a[key]) === 'number' && typeof parseFloat(b[key]) === 'number'){
+                      result = parseFloat(a[key]) - parseFloat(b[key]);
+                  } else {
+                      result = a[key] > b[key] ? 1 : -1;
+                  }
+                  return result;
+              });
+          } else {
+              return this.displayed;
+          }
+      },
+
+        //apparently sorting should have been done with 'displayed' property only, but, in some reasons, sorted
+        // 'displayed' array is not seen outside the onSort function. Lost too much time for this.
+
       listLength() {
           return this.list.length;
       }
     },
     methods:{
-      onDelete(name) {
-          this.list = this.list.filter(hero => hero.name !== name);
+      onDelete(id) {
+          this.list = this.list.filter(hero => hero.id !== id);
           localStorage.setItem('heroList', JSON.stringify(this.list));
       },
 
@@ -105,24 +128,16 @@ export default {
         },
 
       onSort(key) {
-          this.searchedList.sort((a, b) => {
-              let result = 0;
-              if (!isNaN(parseFloat(a[key])) && !isNaN(parseFloat(a[key])) &&
-                  typeof parseFloat(a[key]) === 'number' && typeof parseFloat(b[key]) === 'number'){
-                  result = parseFloat(a[key]) - parseFloat(b[key]);
-              } else {
-                  result = a[key] > b[key] ? 1 : -1;
-              }
-              return result;
-          })
+          this.sortedBy = key;
       },
 
-      onSearch(list){
+      onSearch(list) {
           this.searched = list;
       },
 
       setPage(page) {
           this.page = page;
+          this.sortedBy = '';
       }
     },
   data: function() {
@@ -131,6 +146,7 @@ export default {
       searched: [],
       page: 1,
       perPage: 10,
+      sortedBy: '',
     }
   },
 }
@@ -172,11 +188,5 @@ export default {
         color: #364c5e;
         cursor: pointer;
     }
-    /*.paginate-container {*/
-    /*    display: flex;*/
-    /*    justify-content: space-between;*/
-    /*    align-items: center;*/
-    /*    width: 300px;*/
-    /*    margin: 80px auto auto auto;*/
-    /*}*/
+
 </style>

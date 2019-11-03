@@ -21,9 +21,7 @@
 
 export default {
   name: 'ListItem',
-    props: {
-    hero: Object
-  },
+  props: ['hero', 'list'],
   data: function () {
     return {
         userObj: this.hero,
@@ -39,6 +37,7 @@ export default {
     onDelete(){
       this.$emit('onDelete')
     },
+
     onEditSave(){
       this.userObj.edited = !this.userObj.edited;
       if (this.label === 'edit') {
