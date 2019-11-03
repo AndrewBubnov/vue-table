@@ -1,24 +1,19 @@
 <template>
     <div class="row">
-        <input type="text" class="record-input" v-model="userObj.name" v-if="userObj.edited">
-        <div class="record" v-else>{{ userObj.name }}</div>
-        <input type="text" class="record-input" v-model="userObj.height" v-if="userObj.edited">
-        <div class="record" v-else>{{ userObj.height }}</div>
-        <input type="text" class="record-input" v-model="userObj.mass" v-if="userObj.edited">
-        <div class="record" v-else>{{ userObj.mass }}</div>
-        <input type="text" class="record-input" v-model="userObj.hair_color" v-if="userObj.edited">
-        <div class="record" v-else>{{ userObj.hair_color }}</div>
-        <input type="text" class="record-input" v-model="userObj.skin_color" v-if="userObj.edited">
-        <div class="record" v-else>{{ userObj.skin_color }}</div>
-        <input type="text" class="record-input" v-model="userObj.eye_color" v-if="userObj.edited">
-        <div class="record" v-else>{{ userObj.eye_color }}</div>
-        <input type="text" class="record-input" v-model="userObj.birth_year" v-if="userObj.edited">
-        <div class="record" v-else>{{ userObj.birth_year }}</div>
-        <input type="text" class="record-input" v-model="userObj.gender" v-if="userObj.edited">
-        <div class="record" v-else>{{ userObj.gender }}</div>
+        <div v-if="userObj.edited">
+            <input class="record-input" v-for="field in iteratedFields"
+                   :key="field"
+                   v-model="userObj[field]"
+            />
+        </div>
+        <div class="record" v-else
+             v-for="field in iteratedFields"
+             :key="field"
+        >{{userObj[field]}}
+        </div>
         <div class="button-container">
-            <button @click="onEditSave">{{label}}</button>
-            <button @click="onDelete">Delete</button>
+            <div @click="onEditSave"><i class="material-icons">{{label}}</i></div>
+            <div @click="onDelete"><i class="material-icons">delete</i></div>
         </div>
     </div>
 </template>
@@ -32,8 +27,13 @@ export default {
   data: function () {
     return {
         userObj: this.hero,
-        label: 'Edit',
+        label: 'edit',
     }
+  },
+  computed: {
+      iteratedFields() {
+          return Object.keys(this.userObj).filter(field => field !== 'id' && field !== 'edited');
+      },
   },
   methods: {
     onDelete(){
@@ -41,10 +41,10 @@ export default {
     },
     onEditSave(){
       this.userObj.edited = !this.userObj.edited;
-      if (this.label === 'Edit') {
-          this.label = 'Save';
+      if (this.label === 'edit') {
+          this.label = 'done';
       } else {
-          this.label = 'Edit';
+          this.label = 'edit';
           this.$emit('onSave', this.userObj)
       }
     },
@@ -61,7 +61,7 @@ button{
 .button-container{
     display: flex;
     justify-content: space-between;
-    width: 120px;
+    width: 100px;
 }
 .record-input {
     height: 20px;

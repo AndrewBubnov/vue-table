@@ -13,55 +13,20 @@
             </div>
             <div class="row header">
                 <SearchInput
+                        :key="field"
+                        v-for="field in iteratedFields"
                         :list="list"
-                        :field="'name'"
-                        @onSearch="onSearch"
-                />
-                <SearchInput
-                        :list="list"
-                        :field="'height'"
-                        @onSearch="onSearch"
-                />
-                <SearchInput
-                        :list="list"
-                        :field="'mass'"
-                        @onSearch="onSearch"
-                />
-                <SearchInput
-                        :list="list"
-                        :field="'hair_color'"
-                        @onSearch="onSearch"
-                />
-                <SearchInput
-                        :list="list"
-                        :field="'skin_color'"
-                        @onSearch="onSearch"
-                />
-                <SearchInput
-                        :list="list"
-                        :field="'eye_color'"
-                        @onSearch="onSearch"
-                />
-                <SearchInput
-                        :list="list"
-                        :field="'birth_year'"
-                        @onSearch="onSearch"
-                />
-                <SearchInput
-                        :list="list"
-                        :field="'gender'"
+                        :field="field"
                         @onSearch="onSearch"
                 />
             </div>
             <div class="row header">
-                <div class="record" @click="onSort('name')"><i class="material-icons">sort</i></div>
-                <div class="record" @click="onSort('height')"><i class="material-icons">sort</i></div>
-                <div class="record" @click="onSort('mass')"><i class="material-icons">sort</i></div>
-                <div class="record" @click="onSort('hair_color')"><i class="material-icons">sort</i></div>
-                <div class="record" @click="onSort('skin_color')"><i class="material-icons">sort</i></div>
-                <div class="record" @click="onSort('eye_color')"><i class="material-icons">sort</i></div>
-                <div class="record" @click="onSort('birth_year')"><i class="material-icons">sort</i></div>
-                <div class="record" @click="onSort('gender')"><i class="material-icons">sort</i></div>
+                <div :key="field"
+                     v-for="field in iteratedFields"
+                     @click="onSort(field)"
+                     class="record"
+                ><i class="material-icons">sort</i>
+                </div>
             </div>
             <ListItem v-for="hero of searchedList"
                       :hero="hero"
@@ -95,6 +60,9 @@ export default {
       }
     },
     computed: {
+      iteratedFields() {
+          return Object.keys(this.list[0]).filter(field => field !== 'id' && field !== 'edited');
+      },
       searchedList() {
           return this.searched.length > 0 ? this.searched : this.list;
       }
@@ -145,9 +113,10 @@ export default {
         text-align: center;
         color: #2c3e50;
         margin-top: 60px;
+        box-sizing: border-box;
     }
     .container {
-        max-width: 1600px;
+        max-width: 1540px;
         margin: auto;
     }
     .row {
@@ -168,7 +137,9 @@ export default {
         font-weight: 600;
         margin-bottom: 20px;
     }
-    .material-icons{
+    .material-icons {
+        font-size: 20px;
+        color: #364c5e;
         cursor: pointer;
     }
 </style>
