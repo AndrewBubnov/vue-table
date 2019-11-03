@@ -15,7 +15,7 @@
                 <SearchInput
                         :key="field"
                         v-for="field in iteratedFields"
-                        :list="list"
+                        :list="displayedList"
                         :field="field"
                         @onSearch="onSearch"
                 />
@@ -28,11 +28,17 @@
                 ><i class="material-icons">sort</i>
                 </div>
             </div>
-            <ListItem v-for="hero of searchedList"
+            <ListItem v-for="hero of displayedList"
                       :hero="hero"
                       :key="hero.id"
                       @onDelete="onDelete(hero.name)"
                       @onSave="onSave"
+            />
+            <Pagination
+            :currentPage="page"
+            :listLength="listLength"
+            :recordsPerPage="perPage"
+            @setPage="setPage"
             />
         </div>
     </div>
@@ -42,11 +48,13 @@
 import ListItem from './components/ListItem.vue'
 import heroList from "@/assets/heroList.ts";
 import SearchInput from "@/components/SearchInput";
+import Pagination from "@/components/Pagination";
 
 
 export default {
   name: 'app',
   components: {
+    Pagination,
     SearchInput,
     ListItem
   },
@@ -63,8 +71,25 @@ export default {
       iteratedFields() {
           return Object.keys(this.list[0]).filter(field => field !== 'id' && field !== 'edited');
       },
+
       searchedList() {
           return this.searched.length > 0 ? this.searched : this.list;
+      },
+
+      displayedList() {
+          if (this.searched.length > 0) {
+              return this.searchedList
+          } else {
+              let page = this.page;
+              let perPage = this.perPage;
+              let from = (page * perPage) - perPage;
+              let to = (page * perPage);
+              return this.searchedList.slice(from, to);
+          }
+      },
+
+      listLength() {
+          return this.list.length;
       }
     },
     methods:{
@@ -94,12 +119,18 @@ export default {
 
       onSearch(list){
           this.searched = list;
+      },
+
+      setPage(page) {
+          this.page = page;
       }
     },
   data: function() {
     return {
       list: heroList,
       searched: [],
+      page: 1,
+      perPage: 10,
     }
   },
 }
@@ -125,7 +156,7 @@ export default {
         align-items: center;
         width: 100%;
         height: 20px;
-        margin-bottom: 10px;
+        margin-bottom: 30px;
     }
     .record {
         width: 180px;
@@ -141,4 +172,11 @@ export default {
         color: #364c5e;
         cursor: pointer;
     }
+    /*.paginate-container {*/
+    /*    display: flex;*/
+    /*    justify-content: space-between;*/
+    /*    align-items: center;*/
+    /*    width: 300px;*/
+    /*    margin: 80px auto auto auto;*/
+    /*}*/
 </style>

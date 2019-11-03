@@ -8,12 +8,16 @@ export default {
     props: ['list', 'field'],
   data: function () {
     return {
-
+        localList: this.list,
     }
   },
   methods: {
       onInput(e){
-          const searchedList = this.list.filter(item => item[this.field].includes(e.target.value));
+          const { value } = e.target;
+          let searchedList = [];
+          if (value){
+              searchedList = this.localList.filter(item => item[this.field].includes(value));
+          }
           this.$emit('onSearch', searchedList);
       }
   },
