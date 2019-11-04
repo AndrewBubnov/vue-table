@@ -11,9 +11,6 @@ export default {
         localList: this.list,
     }
   },
-  updated: function(){
-      console.log('searchInput: ',this.list)
-  },
   methods: {
       onInput(e){
           const { value } = e.target;
