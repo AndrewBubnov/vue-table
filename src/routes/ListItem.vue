@@ -52,7 +52,6 @@
             },
 
             onEditSave() {
-                console.log('onEditSave')
                 this.userObj.edited = !this.userObj.edited;
                 if (this.label === 'edit') {
                     this.label = 'done';
