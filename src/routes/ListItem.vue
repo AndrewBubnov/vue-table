@@ -11,7 +11,7 @@
             <div class="record">Gender</div>
         </div>
             <div class="row">
-                <div v-if="userObj.edited">
+                <div  class="row" v-if="userObj.edited">
                     <input class="record-input" v-for="field in iteratedFields"
                            :key="field"
                            v-model="userObj[field]"
@@ -28,6 +28,7 @@
                 <div @click="onDelete"><i class="material-icons">delete</i></div>
                 <div @click="onBack"><i class="material-icons">undo</i></div>
             </div>
+        <div class="warning" :class="{show: showWarning}">{{warning}}</div>
     </div>
 </template>
 <script>
@@ -39,26 +40,41 @@
             return {
                 userObj: this.hero || this.$route.query.hero,
                 label: 'edit',
+                warning: '',
             }
+        },
+        created(){
+            this.label = this.userObj.edited ? 'done' : 'edit';
         },
         computed: {
             iteratedFields() {
                 return Object.keys(this.userObj).filter(field => field !== 'id' && field !== 'edited');
             },
+
+            showWarning() {
+                return this.warning.length > 0
+            }
         },
         methods: {
+
             onDelete() {
                 this.$router.push({path: '/', query: {deletedId: this.userObj.id}})
             },
 
             onEditSave() {
-                this.userObj.edited = !this.userObj.edited;
-                if (this.label === 'edit') {
-                    this.label = 'done';
+                if (this.iteratedFields.every(item => this.userObj[item] !== '')){
+                    this.userObj.edited = !this.userObj.edited;
+                    if (this.label === 'edit') {
+                        this.label = 'done';
+                    } else {
+                        this.label = 'edit';
+                        this.$router.push({path: '/', query: {editedHero: this.userObj}})
+                    }
                 } else {
-                    this.label = 'edit';
-                    this.$router.push({path: '/', query: {editedHero: this.userObj}})
+                    setTimeout(() => (this.warning = ''), 3000);
+                    this.warning = `All fields obligatory`
                 }
+
             },
 
             onBack() {
@@ -88,7 +104,8 @@
         height: 20px;
         padding: 0;
         font-size: 1rem;
-        width: 192px;
+        width: 180px;
+        margin-top: 28px;
         text-align: center;
         box-sizing: border-box;
     }

@@ -15,12 +15,17 @@ const routes = [
     path: '/hero',
     name: 'hero',
     component: ListItem,
-    props: true
-  }
+  },
+  {
+    path: '/new',
+    name: 'new',
+    component: ListItem,
+  },
 ];
 
 const router = new VueRouter({
-  routes
+  routes,
+  mode: 'history',
 });
 
 export default router

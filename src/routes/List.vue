@@ -2,14 +2,14 @@
     <div id="app">
         <div class="container">
             <div class="row header">
-                <div class="record">Name</div>
-                <div class="record">Height</div>
-                <div class="record">Mass</div>
-                <div class="record">Hair color</div>
-                <div class="record">Skin color</div>
-                <div class="record">Eye color</div>
-                <div class="record">Birth year</div>
-                <div class="record">Gender</div>
+                <div class="header-record">Name</div>
+                <div class="header-record">Height</div>
+                <div class="header-record">Mass</div>
+                <div class="header-record">Hair color</div>
+                <div class="header-record">Skin color</div>
+                <div class="header-record">Eye color</div>
+                <div class="header-record">Birth year</div>
+                <div class="header-record">Gender</div>
             </div>
             <div class="row header">
                 <SearchInput
@@ -33,12 +33,14 @@
                       :key="hero.id"
                       @click.native="onClick(hero)"
             />
+            <div class="add-container"><div>Add new</div><i class="material-icons add" @click="onAdd">add</i></div>
             <Pagination
                     :currentPage="page"
                     :listLength="listLength"
                     :recordsPerPage="perPage"
                     @setPage="setPage"
             />
+            <div class="warning" :class="{show: showWarning}">{{this.warning}}</div>
         </div>
     </div>
 </template>
@@ -48,7 +50,11 @@
     import SearchInput from "@/components/SearchInput";
     import Pagination from "@/components/Pagination";
     import heroList from "@/assets/heroList";
+    import Hero from "@/models/Hero";
 
+
+
+    const interval = 60*60*3;                                                      //interval in seconds of new items add
 
     export default {
         name: 'List',
@@ -61,7 +67,8 @@
             if (localStorage.getItem('heroList')){
                 this.list = JSON.parse(localStorage.getItem('heroList'));
             } else {
-                const list = heroList.map(hero => ({...hero, id: `f${(~~(Math.random()*1e8)).toString(16)}`, edited: false}));
+                const list = heroList.map(hero => ({...hero,
+                    id: `f${(~~(Math.random()*1e8)).toString(16)}`, edited: false}));
                 localStorage.setItem('heroList', JSON.stringify(list));
                 this.list = list;
             }
@@ -73,17 +80,24 @@
             }
 
             if (this.$route.query.editedHero && this.$route.query.editedHero.id) {
-                console.log('editedHero = ', this.$route.query.editedHero)
                 const edited = this.$route.query.editedHero;
                 const heroIndex = this.list.findIndex(hero => hero.id === edited.id);
-                this.list.splice(heroIndex, 1, edited);
+                if (heroIndex === -1) {
+                    this.list.push(this.$route.query.editedHero)
+                } else {
+                    this.list.splice(heroIndex, 1, edited);
+                }
                 localStorage.setItem('heroList', JSON.stringify(this.list));
             }
         },
 
         computed: {
             iteratedFields() {
-                return Object.keys(this.list[0]).filter(field => field !== 'id' && field !== 'edited');
+                let fields = [];
+                if (this.list.length > 0){
+                    fields = Object.keys(this.list[0]).filter(field => field !== 'id' && field !== 'edited');
+                }
+                return fields;
             },
 
             searchedList() {
@@ -125,6 +139,10 @@
 
             listLength() {
                 return this.list.length;
+            },
+
+            showWarning() {
+                return this.warning.length > 0
             }
         },
         methods:{
@@ -133,7 +151,7 @@
                 this.sortedBy = key;
             },
 
-            onSearch(list) {
+            onSearch(list){
                 this.searched = list;
             },
 
@@ -141,17 +159,35 @@
                 this.page = page;
                 this.sortedBy = '';
             },
+
             onClick(hero) {
                 this.$router.push({path: '/hero', query: {hero}})
+            },
+
+            onAdd() {
+                const lastHeroTime = localStorage.getItem('heroTime');
+                if (!lastHeroTime || Date.now() - lastHeroTime > interval * 1000){
+                    console.log(Date.now() - lastHeroTime)
+                    localStorage.setItem('heroTime', Date.now() + '');
+                    const hero = new Hero('','','','','','','','');
+                    hero.edited = true;
+                    hero.id = `f${(~~(Math.random()*1e8)).toString(16)}`;
+                    this.$router.push({path: '/new', query: {hero}})
+                } else {
+                    setTimeout(() => (this.warning = ''), 3000);
+                    this.warning = `Please wait for ${Math.floor((Date.now() - lastHeroTime) / 1000)} sec to add item`
+                }
+
             }
         },
         data: function() {
             return {
-                list: heroList,
+                list: [],
                 searched: [],
                 page: 1,
                 perPage: 10,
                 sortedBy: '',
+                warning: '',
             }
         },
     }
@@ -182,6 +218,12 @@
     .record {
         width: 180px;
         text-align: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+    .header-record {
+        width: 180px;
+        text-align: center;
     }
     .header {
         width: 1540px;
@@ -192,6 +234,31 @@
         font-size: 20px;
         color: #364c5e;
         cursor: pointer;
+    }
+    .add-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        width: 1540px;
+        color: darkgreen;
+        font-size: 20px;
+    }
+    .add{
+        color: darkgreen;
+        font-size: 40px;
+    }
+    .warning{
+        display: flex;
+        justify-content: center;
+        width: 1540px;
+        font-size: 1.2rem;
+        color: darkred;
+        opacity: 0;
+        margin-top: 10px;
+        transition: opacity .7s;
+    }
+    .show{
+        opacity: 1;
     }
 
 </style>

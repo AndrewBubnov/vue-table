@@ -33,13 +33,12 @@ export default {
   data: function () {
     return {
         page: this.currentPage,
-        length: this.listLength,
         perPage: this.recordsPerPage,
     }
   },
   computed: {
       lastPage() {
-          return Math.ceil(this.length / this.perPage);
+          return Math.ceil(this.listLength / this.perPage);
       },
 
       previousPages() {
@@ -57,7 +56,7 @@ export default {
           let i = this.page + 1;
           const last = this.page + range <= this.lastPage ? this.page + range : this.lastPage;
           while (i <= last){
-              next.push(i)
+              next.push(i);
               i++;
           }
           return next;
@@ -91,7 +90,7 @@ export default {
         justify-content: space-between;
         align-items: center;
         width: 300px;
-        margin: 80px auto auto auto;
+        margin: 50px auto auto auto;
     }
     .sibling{
         display: flex;
