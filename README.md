@@ -1,24 +1,3 @@
-# genesis-test
-
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Reactive table using Vue. Data received and stored in localStorage, records can be deleted and edited, 
+new records can be created in a specified period of time. 
+Present pagination, filtering and sorting data through paginated page.
