@@ -10,7 +10,7 @@
 <script>
 
 export default {
-  name: 'app-header',
+  name: 'Header',
     props: ['fields'],
     computed: {
       filtered() {

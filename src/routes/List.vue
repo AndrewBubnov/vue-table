@@ -48,7 +48,7 @@
 
 
 
-    const interval = 10*3;
+    const interval = 60*3;
 
     export default {
         name: 'List',
@@ -98,7 +98,6 @@
             },
 
             searchedList() {
-                // console.log('this.list = ', this.list.map(item => item.name))
                 return this.searched.length > 0 ? this.searched : this.list;
             },
 
@@ -114,7 +113,7 @@
                         const key = this.sortedBy;
                         return this.searchedList.slice(from, to).sort((a, b) => {
                             let result = 0;
-                            if (!isNaN(parseFloat(a[key])) && !isNaN(parseFloat(a[key])) &&
+                            if (!isNaN(parseFloat(a[key])) && !isNaN(parseFloat(b[key])) &&
                                 typeof parseFloat(a[key]) === 'number' && typeof parseFloat(b[key]) === 'number') {
                                 result = parseFloat(a[key]) - parseFloat(b[key]);
                             } else {

@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper" :class="{single: this.$router.currentRoute.name !== 'List'}">
-        <app-header :fields="iteratedFields" v-if="this.$router.currentRoute.name !== 'List'"/>
+        <Header :fields="iteratedFields" v-if="this.$router.currentRoute.name !== 'List'"/>
             <div class="row" v-if="userObj">
                 <div  class="row" v-if="userObj.edited">
                     <input class="record-input" v-for="field in iteratedFields"
@@ -27,11 +27,11 @@
 
 
     import {store} from "@/store";
-    import AppHeader from "@/components/Header";
+    import Header from "@/components/Header";
 
     export default {
         components: {
-            AppHeader,
+            Header,
         },
         name: 'ListItem',
         props: ['hero'],
