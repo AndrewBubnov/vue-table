@@ -89,11 +89,6 @@
             onBack() {
                 this.$router.push({path: '/'})
             },
-
-            getHero(hero) {
-                this.userObj = hero;
-                console.log('getHero')
-            }
         },
     }
 </script>
