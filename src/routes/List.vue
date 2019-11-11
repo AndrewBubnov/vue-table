@@ -1,16 +1,7 @@
 <template>
     <div id="app">
         <div class="container">
-            <div class="row header">
-                <div class="header-record">Name</div>
-                <div class="header-record">Height</div>
-                <div class="header-record">Mass</div>
-                <div class="header-record">Hair color</div>
-                <div class="header-record">Skin color</div>
-                <div class="header-record">Eye color</div>
-                <div class="header-record">Birth year</div>
-                <div class="header-record">Gender</div>
-            </div>
+            <app-header :fields="iteratedFields"/>
             <div class="row header">
                 <SearchInput
                         :key="field"
@@ -28,7 +19,7 @@
                 ><i class="material-icons">sort</i>
                 </div>
             </div>
-            <ListItem v-for="hero in shown"
+            <ListItem v-for="hero in displayed"
                       :hero="hero"
                       :key="hero.id"
                       @click.native="onClick(hero)"
@@ -46,24 +37,28 @@
 </template>
 
 <script>
-    import ListItem from '@/routes/ListItem.vue'
+    import ListItem from '@/routes/ListItem.vue';
     import SearchInput from "@/components/SearchInput";
     import Pagination from "@/components/Pagination";
     import heroList from "@/assets/heroList";
     import Hero from "@/models/Hero";
+    import {store} from "@/store";
+    import AppHeader from "@/components/Header";
 
 
 
-    const interval = 60*60*3;                                                      //interval in seconds of new items add
+
+    const interval = 10*3;
 
     export default {
         name: 'List',
         components: {
+            AppHeader,
             Pagination,
             SearchInput,
-            ListItem
+            ListItem,
         },
-        mounted(){
+        mounted() {
             if (localStorage.getItem('heroList')){
                 this.list = JSON.parse(localStorage.getItem('heroList'));
             } else {
@@ -72,23 +67,25 @@
                 localStorage.setItem('heroList', JSON.stringify(list));
                 this.list = list;
             }
-
-            if (this.$route.query.deletedId){
-                console.log('deletedId = ', this.$route.query.deletedId)
-                this.list = this.list.filter(hero => hero.id !== this.$route.query.deletedId);
+        //******
+            if (store.deletedId) {
+                this.list = this.list.filter(hero => hero.id !== store.deletedId);
                 localStorage.setItem('heroList', JSON.stringify(this.list));
+                store.deletedId = null;
             }
+        //******
 
-            if (this.$route.query.editedHero && this.$route.query.editedHero.id) {
-                const edited = this.$route.query.editedHero;
-                const heroIndex = this.list.findIndex(hero => hero.id === edited.id);
+            if (Object.keys(store.editedHero).length > 0){
+                const heroIndex = this.list.findIndex(hero => hero.id === store.editedHero.id);
                 if (heroIndex === -1) {
-                    this.list.push(this.$route.query.editedHero)
+                    this.list.push(store.editedHero)
                 } else {
-                    this.list.splice(heroIndex, 1, edited);
+                    this.list.splice(heroIndex, 1, store.editedHero);
                 }
                 localStorage.setItem('heroList', JSON.stringify(this.list));
+                store.editedHero = {};
             }
+
         },
 
         computed: {
@@ -101,6 +98,7 @@
             },
 
             searchedList() {
+                // console.log('this.list = ', this.list.map(item => item.name))
                 return this.searched.length > 0 ? this.searched : this.list;
             },
 
@@ -112,30 +110,23 @@
                     let perPage = this.perPage;
                     let from = (page * perPage) - perPage;
                     let to = (page * perPage);
-                    return this.searchedList.slice(from, to);
+                    if (this.sortedBy) {
+                        const key = this.sortedBy;
+                        return this.searchedList.slice(from, to).sort((a, b) => {
+                            let result = 0;
+                            if (!isNaN(parseFloat(a[key])) && !isNaN(parseFloat(a[key])) &&
+                                typeof parseFloat(a[key]) === 'number' && typeof parseFloat(b[key]) === 'number') {
+                                result = parseFloat(a[key]) - parseFloat(b[key]);
+                            } else {
+                                result = a[key] > b[key] ? 1 : -1;
+                            }
+                            return result;
+                        });
+                    } else {
+                        return this.searchedList.slice(from, to);
+                    }
                 }
             },
-
-            shown() {
-                if (this.sortedBy){
-                    const key = this.sortedBy;
-                    return this.displayed.slice().sort((a, b) => {
-                        let result = 0;
-                        if (!isNaN(parseFloat(a[key])) && !isNaN(parseFloat(a[key])) &&
-                            typeof parseFloat(a[key]) === 'number' && typeof parseFloat(b[key]) === 'number'){
-                            result = parseFloat(a[key]) - parseFloat(b[key]);
-                        } else {
-                            result = a[key] > b[key] ? 1 : -1;
-                        }
-                        return result;
-                    });
-                } else {
-                    return this.displayed;
-                }
-            },
-
-            //apparently sorting should have been done with 'displayed' property only, but, in some reasons, sorted
-            // 'displayed' array is not seen outside the onSort function. Lost too much time for this.
 
             listLength() {
                 return this.list.length;
@@ -161,18 +152,19 @@
             },
 
             onClick(hero) {
-                this.$router.push({path: '/hero', query: {hero}})
+                store.hero = hero;
+                this.$router.push({path: '/hero'})
             },
 
             onAdd() {
                 const lastHeroTime = localStorage.getItem('heroTime');
                 if (!lastHeroTime || Date.now() - lastHeroTime > interval * 1000){
-                    console.log(Date.now() - lastHeroTime)
                     localStorage.setItem('heroTime', Date.now() + '');
                     const hero = new Hero('','','','','','','','');
                     hero.edited = true;
                     hero.id = `f${(~~(Math.random()*1e8)).toString(16)}`;
-                    this.$router.push({path: '/new', query: {hero}})
+                    store.hero = hero;
+                    this.$router.push({path: '/new'})
                 } else {
                     setTimeout(() => (this.warning = ''), 3000);
                     this.warning = `Please wait for ${Math.floor((Date.now() - lastHeroTime) / 1000)} sec to add item`

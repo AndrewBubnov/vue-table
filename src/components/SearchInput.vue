@@ -16,7 +16,7 @@ export default {
           const { value } = e.target;
           let searchedList = [];
           if (value){
-              searchedList = this.list.filter(item => {
+              searchedList = this.localList.filter(item => {
                   return item[this.field].includes(value)
               });
           }

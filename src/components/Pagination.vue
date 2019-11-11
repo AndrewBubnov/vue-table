@@ -45,7 +45,7 @@ export default {
           const previous = [];
           let i = this.page <= range ? 1 : this.page - range;
           while (i < this.page){
-              previous.push(i)
+              previous.push(i);
               i++;
           }
           return previous;

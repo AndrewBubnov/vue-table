@@ -1,16 +1,7 @@
 <template>
     <div class="wrapper" :class="{single: this.$router.currentRoute.name !== 'List'}">
-        <div class="row header" v-if="this.$router.currentRoute.name !== 'List'">
-            <div class="record">Name</div>
-            <div class="record">Height</div>
-            <div class="record">Mass</div>
-            <div class="record">Hair color</div>
-            <div class="record">Skin color</div>
-            <div class="record">Eye color</div>
-            <div class="record">Birth year</div>
-            <div class="record">Gender</div>
-        </div>
-            <div class="row">
+        <app-header :fields="iteratedFields" v-if="this.$router.currentRoute.name !== 'List'"/>
+            <div class="row" v-if="userObj">
                 <div  class="row" v-if="userObj.edited">
                     <input class="record-input" v-for="field in iteratedFields"
                            :key="field"
@@ -33,18 +24,34 @@
 </template>
 <script>
 
+
+
+    import {store} from "@/store";
+    import AppHeader from "@/components/Header";
+
     export default {
+        components: {
+            AppHeader,
+        },
         name: 'ListItem',
         props: ['hero'],
         data: function () {
             return {
-                userObj: this.hero || this.$route.query.hero,
+                userObj: this.hero || store.hero,
                 label: 'edit',
                 warning: '',
             }
         },
-        created(){
-            this.label = this.userObj.edited ? 'done' : 'edit';
+        mounted() {
+            this.label = this.userObj && this.userObj.edited ? 'done' : 'edit';
+        },
+        beforeDestroy() {
+            store.hero = {};
+        },
+        beforeRouteEnter(to, from, next) {
+            if (!from.name) {
+                next({name: 'List'})
+            } else next()
         },
         computed: {
             iteratedFields() {
@@ -58,7 +65,8 @@
         methods: {
 
             onDelete() {
-                this.$router.push({path: '/', query: {deletedId: this.userObj.id}})
+                store.deletedId = this.userObj.id;
+                this.$router.push({path: '/'});
             },
 
             onEditSave() {
@@ -68,7 +76,8 @@
                         this.label = 'done';
                     } else {
                         this.label = 'edit';
-                        this.$router.push({path: '/', query: {editedHero: this.userObj}})
+                        store.editedHero = this.userObj;
+                        this.$router.push({path: '/'})
                     }
                 } else {
                     setTimeout(() => (this.warning = ''), 3000);
@@ -79,6 +88,11 @@
 
             onBack() {
                 this.$router.push({path: '/'})
+            },
+
+            getHero(hero) {
+                this.userObj = hero;
+                console.log('getHero')
             }
         },
     }
