@@ -113,8 +113,7 @@
                         const key = this.sortedBy;
                         return this.searchedList.slice(from, to).sort((a, b) => {
                             let result = 0;
-                            if (!isNaN(parseFloat(a[key])) && !isNaN(parseFloat(b[key])) &&
-                                typeof parseFloat(a[key]) === 'number' && typeof parseFloat(b[key]) === 'number') {
+                            if (this.isNumber(a[key]) && this.isNumber(b[key])) {
                                 result = parseFloat(a[key]) - parseFloat(b[key]);
                             } else {
                                 result = a[key] > b[key] ? 1 : -1;
@@ -168,7 +167,10 @@
                     setTimeout(() => (this.warning = ''), 3000);
                     this.warning = `Please wait for ${Math.floor((Date.now() - lastHeroTime) / 1000)} sec to add item`
                 }
+            },
 
+            isNumber(n){
+                return !isNaN(parseFloat(n)) && typeof parseFloat(n) === 'number';
             }
         },
         data: function() {
