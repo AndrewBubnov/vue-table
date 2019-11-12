@@ -40,11 +40,10 @@
     import ListItem from '@/routes/ListItem.vue';
     import SearchInput from "@/components/SearchInput";
     import Pagination from "@/components/Pagination";
-    import heroList from "@/assets/heroList";
     import Hero from "@/models/Hero";
-    import {store} from "@/store";
     import AppHeader from "@/components/Header";
-
+    import axios from "axios";
+    import {store} from "@/store";
 
 
 
@@ -62,10 +61,18 @@
             if (localStorage.getItem('heroList')){
                 this.list = JSON.parse(localStorage.getItem('heroList'));
             } else {
-                const list = heroList.map(hero => ({...hero,
-                    id: `f${(~~(Math.random()*1e8)).toString(16)}`, edited: false}));
-                localStorage.setItem('heroList', JSON.stringify(list));
-                this.list = list;
+                let index = 1;
+                while (index < 4) {
+                    axios.get(`https://swapi.co/api/people/?page=${index}`)
+                        .then(res => {
+                            const list = res.data.results.map(item => {
+                                const id = `f${(~~(Math.random()*1e8)).toString(16)}`;
+                                return {...new Hero(...Object.values(item)), id, edited: false}});
+                            this.list = this.list.concat(list);
+                            localStorage.setItem('heroList', JSON.stringify(this.list));
+                        });
+                    index++;
+                }
             }
         //******
             if (store.deletedId) {
